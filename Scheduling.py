@@ -159,6 +159,38 @@ class Scheduling:
         plt.tick_params(direction='in')
         plt.show()
 
+    def Agv_Gantt(self):
+        #fig = plt.figure()
+        fig=plt.figure(figsize=(24, 10))  # 设置DPI为100
+        M = ['red', 'blue', 'yellow', 'orange', 'green', 'moccasin', 'purple', 'pink', 'navajowhite', 'Thistle',
+             'Magenta', 'SlateBlue', 'RoyalBlue', 'Aqua', 'floralwhite', 'ghostwhite', 'goldenrod', 'mediumslateblue',
+             'navajowhite','navy', 'sandybrown']
+        agv_num=0
+        for agv in self.Agvs:
+            to_num=0
+            for use_time in agv.using_time:
+                Start_time=use_time[0]
+                End_time=use_time[1]
+                to=agv._to[to_num]
+                if (Start_time-End_time)!=0:
+                    plt.barh(agv_num, width=End_time - Start_time, height=0.8, left=Start_time, \
+                             color=M[to%(sum(Machine)+1)], edgecolor='black')
+                    plt.text(x=Start_time + ((End_time - Start_time) / 2 -1), y=agv_num-0.08 ,
+                             s=to, size=15, fontproperties='Times New Roman')
+                to_num+=1
+            agv_num+=1
+        #opline=[sum(Machine[0:i+1])-0.5 for i in range(len(Machine))]
+
+        # for i in range(len(opline)):
+        #     plt.hlines(opline[i],xmin=0,xmax=500, colors='black',linestyles='solid',label="OP"+str(i+1))
+        plt.yticks(np.arange(agv_num + 1), np.arange(1, agv_num + 2), size=20, fontproperties='Times New Roman')
+        plt.xticks(size=20, fontproperties='Times New Roman')
+        plt.ylabel("AGV", size=20, fontproperties='SimSun')
+        plt.xlabel("Time", size=20, fontproperties='SimSun')
+        plt.tick_params(labelsize=20)
+        plt.tick_params(direction='in')
+        plt.show()
+
 
 
 #

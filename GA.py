@@ -225,6 +225,7 @@ class GA:
         plt.plot(x,BF)
         plt.show()
         best_C.Gantt()
+        best_C.Agv_Gantt()
 
 if __name__=="__main__":
     g=GA(Job,State,Machine,PT,agv_trans,agv_num)
