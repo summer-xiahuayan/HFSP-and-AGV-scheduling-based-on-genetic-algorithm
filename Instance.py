@@ -14,7 +14,7 @@ def Generate(State,Job,Machine):
             S0=[random.randint(10,50) for k in range(Job)]
             Si.append(S0)
         PT.append(Si)
-    agv1_trans = [random.randint(15,25) for i in range(1,sum(Machine)+1)]
+    agv1_trans = [random.randint(2,6) for i in range(1,sum(Machine)+1)]
     agv1_trans=trans_Matrix(agv1_trans,sum(Machine)+1)
 
     return PT,agv1_trans
@@ -46,7 +46,7 @@ def Fsp_Generate(State,Job,Machine):
 Job=20
 State=4
 Machine=[3,2,3,2]
-agv_num=4
+agv_num=5
 PT,agv_trans=Generate(State,Job,Machine)
 #PT=Fsp_Generate(State,Job,Machine)
 if __name__ == '__main__':
