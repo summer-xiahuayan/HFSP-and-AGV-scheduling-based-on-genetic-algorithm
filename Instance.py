@@ -43,7 +43,7 @@ def Fsp_Generate(State,Job,Machine):
     return PT
 
 
-Job=20
+Job=100
 State=4
 Machine=[3,2,3,2]
 agv_num=5
