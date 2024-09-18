@@ -102,9 +102,9 @@ class Scheduling:
             min_tf=99999
             best_agv=None
             Machineidx=sum(self.M[0:Stage])+Machine+1
-            print(Machineidx)
-            print("***********")
-            print(Stage)
+            # print(Machineidx)
+            # print("***********")
+            # print(Stage)
             for agv in self.Agvs:
                 trans1=self.TT[agv.cur_site][self.Jobs[i].laston]
                 trans2=self.TT[self.Jobs[i].laston][Machineidx]
@@ -114,8 +114,11 @@ class Scheduling:
                     best_agv=agv
                     min_tf=best_e
             best_agv.update(best_s,t1,t2,self.Jobs[i].laston,Machineidx,self.Jobs[i].idx)
-            #s, e, t=max(last_od,last_Md[Machine],),max(last_od,last_Md[Machine])+M_time[Machine],M_time[Machine]
-            s, e, t=max(last_Md[Machine],max(last_od,best_e)),max(last_Md[Machine],max(last_od,best_e))+M_time[Machine],M_time[Machine]
+            # 无AGV
+            s, e, t=max(last_od,last_Md[Machine],),max(last_od,last_Md[Machine])+M_time[Machine],M_time[Machine]
+
+            # 有AGV
+            #s, e, t=max(last_Md[Machine],max(last_od,best_e)),max(last_Md[Machine],max(last_od,best_e))+M_time[Machine],M_time[Machine]
             self.Jobs[i].update(s, e,Machineidx, t)
             self.Machines[Stage][Machine].update(s, e,i, t)
             if e>self.fitness:

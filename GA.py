@@ -5,7 +5,11 @@ from Scheduling import Scheduling as Sch
 from Instance import Job,State,Machine,PT,agv_trans,agv_num
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.decomposition import PCA
+
+def CosineSimilarity(x,y):
+    return cosine_similarity(np.array(x).reshape(1,-1),np.array(y).reshape(1,-1))[0,0]
 class GA:
     def __init__(self,J_num,State,Machine,PT,TT,agv_num):
         self.State=State
@@ -95,7 +99,17 @@ class GA:
         for i in range(len(popuation)):
             popuation[i] = [row[0]*0.25+row[1]*0.25+row[2]*0.25+row[3]*0.25 for row in popuation[i]]
 
-        kmeans = KMeans(n_clusters=2, random_state=0).fit(popuation)
+        population_2d = np.array(popuation).reshape(-1, Job)  # 假设P是特征数量
+
+        similarity1=[CosineSimilarity(population_2d[random.randint(0,len(popuation)-1)],x) for x in population_2d]
+        similarity2=[CosineSimilarity(population_2d[random.randint(0,len(popuation)-1)],x) for x in population_2d]
+
+        similarity_2d=[[similarity1[i],similarity2[i]] for i in range(len(similarity1))]
+
+
+
+
+        kmeans = KMeans(n_clusters=2, random_state=0).fit(similarity_2d)
         #获取聚类中心
         center = kmeans.cluster_centers_
         #获取每个样本所属的簇
@@ -177,7 +191,7 @@ class GA:
             BF.append(best_fit)
         plt.plot(x,BF)
         plt.show()
-        best_C.Gantt()
+        #best_C.Gantt()
 
 
     def mainagain(self):
@@ -224,12 +238,12 @@ class GA:
             BF.append(best_fit)
         plt.plot(x,BF)
         plt.show()
-        best_C.Gantt()
-        best_C.Agv_Gantt()
+        #best_C.Gantt()
+        #best_C.Agv_Gantt()
 
 if __name__=="__main__":
     g=GA(Job,State,Machine,PT,agv_trans,agv_num)
     #print(g.PT)
     #print(g.KmeansCrossover([[0,1,2,3,4,5,6,7,8,9],[0,2,1,3,6,5,4,9,8,7]],20))
-   # g.main()
+    g.main()
     g.mainagain()
