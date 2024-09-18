@@ -162,6 +162,24 @@ class Scheduling:
         plt.tick_params(direction='in')
         plt.show()
 
+    def api_return(self):
+        machinelist=[]
+        for i in range(len(self.M)):
+            for j in range(self.M[i]):
+                for k in range(len(self.Machines[i][j].start)):
+                    item_list=[]
+                    Start_time=self.Machines[i][j].start[k]
+                    End_time=self.Machines[i][j].end[k]
+                    Job=self.Machines[i][j]._on[k]
+
+                    item_list.append(self.Machines[i][j].idx)
+                    item_list.append(Start_time)
+                    item_list.append(End_time)
+                    item_list.append(Job+1)
+                    machinelist.append(item_list)
+        return machinelist
+
+
     def Agv_Gantt(self):
         #fig = plt.figure()
         fig=plt.figure(figsize=(24, 10))  # 设置DPI为100

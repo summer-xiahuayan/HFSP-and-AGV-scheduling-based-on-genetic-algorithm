@@ -189,9 +189,9 @@ class GA:
                 best_fit=min(Fit)
                 best_C=Sc[Fit.index(min(Fit))]
             BF.append(best_fit)
-        plt.plot(x,BF)
-        plt.show()
-        #best_C.Gantt()
+        # plt.plot(x,BF)
+        # plt.show()
+        return best_C.api_return()
 
 
     def mainagain(self):
@@ -236,14 +236,15 @@ class GA:
                 best_fit=min(Fit)
                 best_C=Sc[Fit.index(min(Fit))]
             BF.append(best_fit)
-        plt.plot(x,BF)
-        plt.show()
+        # plt.plot(x,BF)
+        # plt.show()
         #best_C.Gantt()
         #best_C.Agv_Gantt()
+        return best_C.api_return()
 
 if __name__=="__main__":
     g=GA(Job,State,Machine,PT,agv_trans,agv_num)
     #print(g.PT)
     #print(g.KmeansCrossover([[0,1,2,3,4,5,6,7,8,9],[0,2,1,3,6,5,4,9,8,7]],20))
-    g.main()
+    #g.main()
     g.mainagain()
