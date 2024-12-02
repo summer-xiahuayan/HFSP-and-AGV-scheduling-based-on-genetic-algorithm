@@ -61,5 +61,9 @@ _,agv_trans=Generate(State,Job,Machine)
 #PT=Fsp_Generate(State,Job,Machine)
 if __name__ == '__main__':
     # FSP_PT=Fsp_Generate(State,Job,Machine)
+<<<<<<< HEAD
     print(PT )
 
+=======
+    print(PT)
+>>>>>>> 7b113eb98089c80be59ddcb9b7f81330811aafb6

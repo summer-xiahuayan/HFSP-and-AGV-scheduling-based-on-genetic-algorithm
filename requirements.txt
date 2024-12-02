@@ -1,0 +1,4 @@
+fastapi==0.83.0
+pydantic==1.9.2
+typing==3.6.2
+numpy==1.13.3

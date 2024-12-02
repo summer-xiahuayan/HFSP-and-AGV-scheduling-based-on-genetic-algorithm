@@ -115,10 +115,10 @@ class Scheduling:
                     min_tf=best_e
             best_agv.update(best_s,t1,t2,self.Jobs[i].laston,Machineidx,self.Jobs[i].idx)
             # 无AGV
-            s, e, t=max(last_od,last_Md[Machine],),max(last_od,last_Md[Machine])+M_time[Machine],M_time[Machine]
+            #s, e, t=max(last_od,last_Md[Machine],),max(last_od,last_Md[Machine])+M_time[Machine],M_time[Machine]
 
-            # 有AGV
-            #s, e, t=max(last_Md[Machine],max(last_od,best_e)),max(last_Md[Machine],max(last_od,best_e))+M_time[Machine],M_time[Machine]
+            #有AGV
+            s, e, t=max(last_Md[Machine],max(last_od,best_e)),max(last_Md[Machine],max(last_od,best_e))+M_time[Machine],M_time[Machine]
             self.Jobs[i].update(s, e,Machineidx, t)
             self.Machines[Stage][Machine].update(s, e,i, t)
             if e>self.fitness:
@@ -169,6 +169,43 @@ class Scheduling:
         plt.tick_params(labelsize=20)
         plt.tick_params(direction='in')
         plt.show()
+
+    def api_return(self):
+        machinelist=[]
+        agvlist=[]
+        for i in range(len(self.M)):
+            for j in range(self.M[i]):
+                for k in range(len(self.Machines[i][j].start)):
+                    item_list=[]
+                    Start_time=self.Machines[i][j].start[k]
+                    End_time=self.Machines[i][j].end[k]
+                    Job=self.Machines[i][j]._on[k]
+
+                    item_list.append(self.Machines[i][j].idx)
+                    item_list.append(Start_time)
+                    item_list.append(End_time)
+                    item_list.append(Job+1)
+                    machinelist.append(item_list)
+        agv_num=0
+        agv_loc=sum(self.M)+1
+        for agv in self.Agvs:
+            to_num=0
+            for use_time in agv.using_time:
+                item_list=[]
+                Start_time=use_time[0]
+                End_time=use_time[1]
+                to=agv._to[to_num]
+                to_num+=1
+                item_list.append(agv.idx)
+                item_list.append(Start_time)
+                item_list.append(End_time)
+                item_list.append(agv_loc)
+                item_list.append(to)
+                agvlist.append(item_list)
+                agv_loc=to
+            agv_num+=1
+        return machinelist,agvlist
+
 
     def Agv_Gantt(self):
         #fig = plt.figure()
