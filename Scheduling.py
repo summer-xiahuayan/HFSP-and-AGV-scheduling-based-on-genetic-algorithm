@@ -57,7 +57,7 @@ class Scheduling:
         self.PT=PT
         self.Create_Job()
         self.Create_Machine()
-        self.Create_Agv()
+        self.Create_Agv(Machine)
         self.fitness=0
 
     def Create_Job(self):
@@ -78,10 +78,10 @@ class Scheduling:
                 State_i.append(M)
                 idx+=1
             self.Machines.append(State_i)
-    def Create_Agv(self):
+    def Create_Agv(self,m):
         self.Agvs=[]
         for i in range(self.agv_num):
-            A=AGV(i,0)
+            A=AGV(i,sum(m)+1)
             self.Agvs.append(A)
     #每个阶段的解码
     def Stage_Decode(self,CHS,Stage):
@@ -134,22 +134,30 @@ class Scheduling:
     #画甘特图
     def Gantt(self):
         #fig = plt.figure()
-        fig=plt.figure(figsize=(24, 10))  # 设置DPI为100
+        fig=plt.figure(figsize=(15, 8))  # 设置DPI为100
         M = ['red', 'blue', 'yellow', 'orange', 'green', 'moccasin', 'purple', 'pink', 'navajowhite', 'Thistle',
              'Magenta', 'SlateBlue', 'RoyalBlue', 'Aqua', 'floralwhite', 'ghostwhite', 'goldenrod', 'mediumslateblue',
              'navajowhite','navy', 'sandybrown']
         M_num=0
         for i in range(len(self.M)):
+            op_time=0
             for j in range(self.M[i]):
+                work_time=0
                 for k in range(len(self.Machines[i][j].start)):
                     Start_time=self.Machines[i][j].start[k]
                     End_time=self.Machines[i][j].end[k]
                     Job=self.Machines[i][j]._on[k]
                     plt.barh(M_num, width=End_time - Start_time, height=0.8, left=Start_time, \
-                             color=M[Job%21], edgecolor='black')
-                    plt.text(x=Start_time + ((End_time - Start_time) / 2 -4), y=M_num-0.08 ,
-                             s=Job+1, size=15, fontproperties='Times New Roman')
+                             color=M[Job%20], edgecolor='black')
+                    plt.text(x=Start_time + ((End_time - Start_time) / 2 -8), y=M_num-0.10 ,
+                             s="J"+str(Job+1), size=15, fontproperties='Times New Roman')
+                    op_time+=(End_time-Start_time)
+                    work_time+=(End_time-Start_time)
                 M_num += 1
+                print(f"meachine{M_num} block rate: {work_time/self.fitness}")
+            print(f"op{i+1} block rate: {op_time/self.fitness}")
+
+
         opline=[sum(Machine[0:i+1])-0.5 for i in range(len(Machine))]
 
         # for i in range(len(opline)):
@@ -175,6 +183,7 @@ class Scheduling:
                 Start_time=use_time[0]
                 End_time=use_time[1]
                 to=agv._to[to_num]
+                on=agv._on[to_num]
                 if (Start_time-End_time)!=0:
                     plt.barh(agv_num, width=End_time - Start_time, height=0.8, left=Start_time, \
                              color=M[to%(sum(Machine)+1)], edgecolor='black')

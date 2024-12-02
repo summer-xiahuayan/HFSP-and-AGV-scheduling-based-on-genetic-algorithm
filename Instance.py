@@ -14,8 +14,8 @@ def Generate(State,Job,Machine):
             S0=[random.randint(10,50) for k in range(Job)]
             Si.append(S0)
         PT.append(Si)
-    agv1_trans = [random.randint(2,6) for i in range(1,sum(Machine)+1)]
-    agv1_trans=trans_Matrix(agv1_trans,sum(Machine)+1)
+    agv1_trans = [random.randint(2,6) for i in range(1,sum(Machine)+2)]
+    agv1_trans=trans_Matrix(agv1_trans,sum(Machine)+2)
 
     return PT,agv1_trans
 
@@ -28,11 +28,19 @@ def trans_Matrix(trans,m):
             elif i!=j and T[i][j]==0:
                 T[i][j]=sum(trans[i:j])
                 T[j][i]=T[i][j]
-    return T
+
+    itemlist=[]
+    for i in range(len(T)):
+        item=[]
+        for j in range(len(T[i])):
+            item.append(T[i][j])
+        itemlist.append(item)
+
+    return itemlist
 
 def Fsp_Generate(State,Job,Machine):
     PT=[]
-    df = pd.read_csv('E:\PYCHARM\pycharm project\Smart Factory\HFSP\加工时间-100s.csv')
+    df = pd.read_csv('E:\PYCHARM\pycharm project\Smart Factory\HFSP\加工时间-20s.csv')
     seed=df.values.tolist()
     for i in range(State):
         Si=[]       #第i各加工阶段
@@ -43,12 +51,15 @@ def Fsp_Generate(State,Job,Machine):
     return PT
 
 
-Job=100
+Job=20
 State=4
-Machine=[3,2,3,2]
-agv_num=5
-PT,agv_trans=Generate(State,Job,Machine)
+Machine=[10,9,8,9]
+agv_num=4
+
+PT=Fsp_Generate(State,Job,Machine)
+_,agv_trans=Generate(State,Job,Machine)
 #PT=Fsp_Generate(State,Job,Machine)
 if __name__ == '__main__':
     # FSP_PT=Fsp_Generate(State,Job,Machine)
-    print(agv_trans)
+    print(PT )
+
