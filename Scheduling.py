@@ -1,3 +1,4 @@
+import copy
 import random
 import matplotlib.pyplot as plt
 from Instance import Job,State,Machine,PT,agv_num
@@ -32,20 +33,25 @@ class Item:
         self.idx=idx
         self.start=[]
         self.end=[]
+        self.op_list=[]
         self._on=[]
         self.T=[]
         self.last_ot=0
         self.L=0
         self.laston=None
+        self.op=0  #对于机器来说是加工物品的个数，对于工件来说是当前工序
 
-    def update(self,s,e,on,t):
+    def update(self,s,e,on,t,op):
         self.start.append(s)
         self.end.append(e)
+        self.op_list.append(op)
         self._on.append(on)
         self.laston=on
         self.T.append(t)
         self.last_ot=e
         self.L+=t
+        self.op+=1
+
 
 class Scheduling:
     def __init__(self,J_num,Machine,State,PT,TT,agv_num):
@@ -119,8 +125,8 @@ class Scheduling:
 
             #有AGV
             s, e, t=max(last_Md[Machine],max(last_od,best_e)),max(last_Md[Machine],max(last_od,best_e))+M_time[Machine],M_time[Machine]
-            self.Jobs[i].update(s, e,Machineidx, t)
-            self.Machines[Stage][Machine].update(s, e,i, t)
+            self.Jobs[i].update(s, e,Machineidx, t,0)
+            self.Machines[Stage][Machine].update(s, e,i, t,self.Jobs[i].op)
             if e>self.fitness:
                 self.fitness=e
 
@@ -171,41 +177,79 @@ class Scheduling:
         plt.show()
 
     def api_return(self):
-        machinelist=[]
+        machinelists=[]
         agvlist=[]
         for i in range(len(self.M)):
             for j in range(self.M[i]):
+                machinelist=[]
                 for k in range(len(self.Machines[i][j].start)):
                     item_list=[]
                     Start_time=self.Machines[i][j].start[k]
                     End_time=self.Machines[i][j].end[k]
+                    op=self.Machines[i][j].op_list[k]
                     Job=self.Machines[i][j]._on[k]
-
-                    item_list.append(self.Machines[i][j].idx)
+                    #item_list.append(self.Machines[i][j].idx)
+                    item_list.append(Job+1)
                     item_list.append(Start_time)
                     item_list.append(End_time)
-                    item_list.append(Job+1)
+                    item_list.append(op)
                     machinelist.append(item_list)
+                machinelists.append(machinelist)
+
         agv_num=0
-        agv_loc=sum(self.M)+1
+
+        agvlists=[]
         for agv in self.Agvs:
+            agv_loc=sum(self.M)+1
+            agvlist=[]
             to_num=0
             for use_time in agv.using_time:
                 item_list=[]
                 Start_time=use_time[0]
                 End_time=use_time[1]
                 to=agv._to[to_num]
+                on=agv._on[to_num]
                 to_num+=1
-                item_list.append(agv.idx)
+                #item_list.append(agv.idx)
+                if on==None:
+                    item_list.append(0)
+                else:
+                    item_list.append(on)
                 item_list.append(Start_time)
                 item_list.append(End_time)
                 item_list.append(agv_loc)
                 item_list.append(to)
                 agvlist.append(item_list)
                 agv_loc=to
+            agvlists.append(agvlist)
             agv_num+=1
-        return machinelist,agvlist
+        self.Gantt_html(machinelists,agvlists)
+        return machinelists,agvlists
+    def Gantt_html(self,machinelists,agvlists):
 
+        import re
+        # 读取原始HTML文件
+        with open('gantt.html', 'r', encoding='utf-8') as file:
+            content = file.read()
+        # 新的ganttData值，这里只是一个示例，你需要替换成你想要设置的值
+       # new_gantt_data = str(meachines_tasks)[0:-1]
+        # 使用正则表达式替换var ganttData的值
+
+        # 这个正则表达式匹配 var ganttData = 开头，直到后面的 JavaScript 代码块结束
+
+        # 它假设 ganttData 的值是多行的，并且可能包含引号和换行符
+
+        new_content = re.sub(r'(var meachine_ganttData =\s*).*?(\];)', r'\1' + str(machinelists)[0:-1] + r'\2', content, flags=re.DOTALL)
+
+        new_content = re.sub(r'(var agv_ganttData =\s*).*?(\];)', r'\1' + str(agvlists)[0:-1] + r'\2', new_content, flags=re.DOTALL)
+
+
+
+        # 将修改后的内容写回原HTML文件
+
+        with open('gantt.html', 'w', encoding='utf-8') as file:
+
+            file.write(new_content)
 
     def Agv_Gantt(self):
         #fig = plt.figure()

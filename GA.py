@@ -112,7 +112,7 @@ class GA:
             k+=1
         return CHS
 
-<<<<<<< HEAD
+
     def KmeansCrossover(self,C,son_number):
         PT=[self.PT[i][0] for i in range(len(self.PT))]
         popuation=[]
@@ -216,7 +216,7 @@ class GA:
         plt.plot(x,BF)
         plt.show()
         #best_C.Gantt()
-=======
+
     # def KmeansCrossover(self,C,son_number):
     #     PT=[self.PT[i][0] for i in range(len(self.PT))]
     #     popuation=[]
@@ -322,7 +322,7 @@ class GA:
     #     # plt.plot(x,BF)
     #     # plt.show()
     #     return best_C.api_return()
->>>>>>> 7b113eb98089c80be59ddcb9b7f81330811aafb6
+
 
 
     def mainagain(self):
@@ -375,19 +375,16 @@ class GA:
         plt.xlabel("迭代次数", size=12, fontproperties='SimSun')
         plt.show()
         best_C.Gantt()
-<<<<<<< HEAD
-        #best_C.Agv_Gantt()
-=======
         best_C.Agv_Gantt()
         return best_C.api_return()
->>>>>>> 7b113eb98089c80be59ddcb9b7f81330811aafb6
+
 
 if __name__=="__main__":
     g=GA(Job,State,Machine,PT,agv_trans,agv_num)
     #print(g.PT)
     #print(g.KmeansCrossover([[0,1,2,3,4,5,6,7,8,9],[0,2,1,3,6,5,4,9,8,7]],20))
     #g.main()
-    g.mainagain()
+    print(g.mainagain())
 
 
 
