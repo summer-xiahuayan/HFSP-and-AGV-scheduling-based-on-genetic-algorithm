@@ -2,7 +2,7 @@
 
 #### 1、HFSP
 
-![image-20241202141732030](README.assets/image-20241202141732030.png)
+![image-20241202141732030](./README.assets/image-20241202141732030.png)
 
 The Hybrid Flow Shop Scheduling Problem (HFSP) is a significant optimization issue in the field of production scheduling. It integrates the characteristics of the classic flow shop and parallel machine scheduling, aligning more closely with actual production requirements and possessing high research value and practical application background. The HFSP involves scheduling a set of jobs in a workshop that includes multiple processing stages. Each stage may contain one or more parallel machines, and jobs need to go through each stage in a certain process order for processing. The goal is to find the best processing sequence and machine allocation plan to optimize specific performance indicators, such as minimizing the total completion time or the maximum completion time.
 
@@ -39,17 +39,18 @@ The basic process of traditional genetic algorithms can be summarized in the fol
 
 The iterative process of genetic algorithms aims to gradually improve the overall fitness of the population, ultimately finding the optimal or near-optimal solution to the problem. Below is the flowchart:
 
-![image-20241202141955285](README.assets/image-20241202141955285.png)
+![image-20241202141955285](./README.assets/image-20241202141955285.png)
 
 #### 3、RESULT
 
 
 
-![image-20240911142518445](https://gitee.com/xiahuayan/public-image-lab/raw/master/img/202409111425416.png)
+![image-20240911142518445](./README.assets/image-20240911142518445.png)
 
-![image-20240911142554600](https://gitee.com/xiahuayan/public-image-lab/raw/master/img/202409111425216.png)
+![image-20240911142554600](./README.assets/image-20240911142554600.png)
 
 
 
-![image-20240911142620629](https://gitee.com/xiahuayan/public-image-lab/raw/master/img/202409111426221.png)
+![image-20240911142620629](./README.assets/image-20240911142620629.png)
 
+![Flow Shop Scheduling Gantt Chart - Google Chrome 2024-12-27 13-44-22](./README.assets/Flow Shop Scheduling Gantt Chart - Google Chrome 2024-12-27 13-44-22.gif)
