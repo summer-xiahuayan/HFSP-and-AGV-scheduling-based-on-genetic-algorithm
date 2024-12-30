@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 from Instance import Job,State,Machine,PT,agv_num
 import numpy as np
 
-
-
 class AGV:
     def __init__(self,idx,L_U):
         self.idx=idx
@@ -164,10 +162,11 @@ class Scheduling:
                     Start_time=self.Machines[i][j].start[k]
                     End_time=self.Machines[i][j].end[k]
                     Job=self.Machines[i][j]._on[k]
+                    op=self.Machines[i][j].op_list[k]
                     plt.barh(M_num, width=End_time - Start_time, height=0.8, left=Start_time, \
                              color=M[Job%20], edgecolor='black')
-                    plt.text(x=Start_time + ((End_time - Start_time) / 2 -8), y=M_num-0.10 ,
-                             s="J"+str(Job+1), size=15, fontproperties='Times New Roman')
+                    plt.text(x=Start_time+1, y=M_num-0.10 ,
+                             s="J"+str(Job+1)+"|T"+str(op), size=12, fontproperties='Times New Roman')
                     op_time+=(End_time-Start_time)
                     work_time+=(End_time-Start_time)
                 M_num += 1
@@ -237,9 +236,9 @@ class Scheduling:
         wait_times,meachines_block_time,wait_rate,block_rate,agvs_block_time,agv_block_rates=self.get_block_and_wait()
         self.Gantt_html(machinelists,agvlists,wait_rate,block_rate,agv_block_rates)
         print(wait_times,meachines_block_time,wait_rate,block_rate,agvs_block_time,agv_block_rates)
-        return machinelists,agvlists
-    def Gantt_html(self,machinelists,agvlists,wait_rate,block_rate,agv_block_rates):
+        return machinelists,agvlists,block_rate,agv_block_rates
 
+    def Gantt_html(self,machinelists,agvlists,wait_rate,block_rate,agv_block_rates):
         import re
         # 读取原始HTML文件
         with open('gantt.html', 'r', encoding='utf-8') as file:
@@ -247,27 +246,15 @@ class Scheduling:
         # 新的ganttData值，这里只是一个示例，你需要替换成你想要设置的值
        # new_gantt_data = str(meachines_tasks)[0:-1]
         # 使用正则表达式替换var ganttData的值
-
         # 这个正则表达式匹配 var ganttData = 开头，直到后面的 JavaScript 代码块结束
-
         # 它假设 ganttData 的值是多行的，并且可能包含引号和换行符
-
         new_content = re.sub(r'(var meachine_ganttData =\s*).*?(\];)', r'\1' + str(machinelists)[0:-1] + r'\2', content, flags=re.DOTALL)
-
         new_content = re.sub(r'(var agv_ganttData =\s*).*?(\];)', r'\1' + str(agvlists)[0:-1] + r'\2', new_content, flags=re.DOTALL)
-
         new_content = re.sub(r'(var wait_rate =\s*).*?(\];)', r'\1' + str(wait_rate)[0:-1] + r'\2', new_content, flags=re.DOTALL)
-
         new_content = re.sub(r'(var block_rate =\s*).*?(\];)', r'\1' + str(block_rate)[0:-1] + r'\2', new_content, flags=re.DOTALL)
-
         new_content = re.sub(r'(var agv_block_rate =\s*).*?(\];)', r'\1' + str(agv_block_rates)[0:-1] + r'\2', new_content, flags=re.DOTALL)
-
-
-
         # 将修改后的内容写回原HTML文件
-
         with open('gantt.html', 'w', encoding='utf-8') as file:
-
             file.write(new_content)
 
     def merge_intervals(self,intervals):
@@ -317,10 +304,6 @@ class Scheduling:
             else:
                 meachines_block_time.append(0)
 
-
-
-
-
         agv_block_times=[[] for _ in range(agv_num)]
         index=0
         for agv in self.Agvs:
@@ -342,7 +325,6 @@ class Scheduling:
                 agvs_block_time.append(agv_block_time)
             else:
                 agvs_block_time.append(0)
-
 
         wait_rates=[]
         block_rates=[]
@@ -377,19 +359,24 @@ class Scheduling:
              'Magenta', 'SlateBlue', 'RoyalBlue', 'Aqua', 'floralwhite', 'ghostwhite', 'goldenrod', 'mediumslateblue',
              'navajowhite','navy', 'sandybrown']
         agv_num=0
+
         for agv in self.Agvs:
             to_num=0
+            _or=sum(self.M)+1
             for use_time in agv.using_time:
                 Start_time=use_time[0]
                 End_time=use_time[1]
                 to=agv._to[to_num]
                 on=agv._on[to_num]
+                if on==None:
+                    on=0
                 if (Start_time-End_time)!=0:
                     plt.barh(agv_num, width=End_time - Start_time, height=0.8, left=Start_time, \
-                             color=M[to%(sum(Machine)+1)], edgecolor='black')
-                    plt.text(x=Start_time + ((End_time - Start_time) / 2 -1), y=agv_num-0.08 ,
-                             s=to, size=15, fontproperties='Times New Roman')
+                             color=M[on%len(M)], edgecolor='black')
+                    plt.text(x=Start_time +1, y=agv_num-0.08 ,
+                             s="J"+str(on)+"|O"+str(_or)+"|D"+str(to), size=11, fontproperties='Times New Roman')
                 to_num+=1
+                _or=to
             agv_num+=1
         #opline=[sum(Machine[0:i+1])-0.5 for i in range(len(Machine))]
 

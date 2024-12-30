@@ -58,14 +58,16 @@ async def receive_type(input_data: TypeModel):
 
     PT,agv_trans=Generate(input_data.state,input_data.job,input_data.machine)
     g=GA(input_data.job,input_data.state,input_data.machine,input_data.processtime,input_data.agvtranstime,input_data.agvnum)
-    result,agvlist=g.mainagain()
+    result,agvlist,meachine_block_rates,agv_block_rates=g.mainagain()
     data={
         "ok":True,
         "job":input_data.job,
         "machine":input_data.machine,
         "state":input_data.state,
-        "jobresult":result,
-        "agvresult":agvlist
+        "meachine_result":result,
+        "agv_result":agvlist,
+        "meachine_block_rates":meachine_block_rates,
+        "agv_block_rates":agv_block_rates
     }
 
     return data
