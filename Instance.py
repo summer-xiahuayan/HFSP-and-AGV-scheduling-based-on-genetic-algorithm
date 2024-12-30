@@ -53,8 +53,8 @@ def Fsp_Generate(State,Job,Machine):
 
 Job=20
 State=4
-Machine=[3,3,3,3]
-agv_num=10
+Machine=[3,2,3,2]
+agv_num=4
 
 PT=Fsp_Generate(State,Job,Machine)
 _,agv_trans=Generate(State,Job,Machine)
