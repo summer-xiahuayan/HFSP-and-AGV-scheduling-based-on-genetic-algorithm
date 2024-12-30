@@ -53,4 +53,4 @@ The iterative process of genetic algorithms aims to gradually improve the overal
 
 ![image-20240911142620629](./README.assets/image-20240911142620629.png)
 
-![Flow Shop Scheduling Gantt Chart - Google Chrome 2024-12-27 13-44-22](./README.assets/1.gif)
+![Flow Shop Scheduling Gantt Chart - Google Chrome 2024-12-27 13-44-22](./README.assets/12.gif)
