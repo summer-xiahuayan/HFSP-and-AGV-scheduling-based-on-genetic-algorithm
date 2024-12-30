@@ -171,8 +171,8 @@ class Scheduling:
                     op_time+=(End_time-Start_time)
                     work_time+=(End_time-Start_time)
                 M_num += 1
-                print(f"meachine{M_num} block rate: {work_time/self.fitness}")
-            print(f"op{i+1} block rate: {op_time/self.fitness}")
+                print(f"meachine{M_num} work rate: {work_time/self.fitness}")
+            print(f"op{i+1} work rate: {op_time/self.fitness}")
 
 
         opline=[sum(Machine[0:i+1])-0.5 for i in range(len(Machine))]

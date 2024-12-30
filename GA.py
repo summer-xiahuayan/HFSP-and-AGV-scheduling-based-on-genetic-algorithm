@@ -13,6 +13,9 @@ from colorama import Fore
 import colorlog
 import logging
 # set logger
+import logging
+from colorlog import ColoredFormatter
+# 配置日志颜色
 log_colors_config = {
     'DEBUG': 'cyan',
     'INFO': 'green',
@@ -20,16 +23,27 @@ log_colors_config = {
     'ERROR': 'red',
     'CRITICAL': 'bold_red',
 }
+# 创建Logger
 logger = logging.getLogger("logger_pre")
 logger.setLevel(logging.DEBUG)
+# 创建StreamHandler
 sh = logging.StreamHandler()
 sh.setLevel(logging.INFO)
-stream_fmt = colorlog.ColoredFormatter(
+stream_fmt = ColoredFormatter(
     fmt="%(log_color)s[%(asctime)s] - %(filename)-8s - %(levelname)-7s - line %(lineno)s - %(message)s",
     log_colors=log_colors_config)
 sh.setFormatter(stream_fmt)
 logger.addHandler(sh)
+# 创建FileHandler
+fh = logging.FileHandler('app.log')
+fh.setLevel(logging.DEBUG)  # 设置文件日志级别为DEBUG，以记录所有级别的日志
+file_fmt = logging.Formatter(
+    fmt="[%(asctime)s] - %(filename)-8s - %(levelname)-7s - line %(lineno)s - %(message)s")
+fh.setFormatter(file_fmt)
+logger.addHandler(fh)
+# 关闭Handler
 sh.close()
+fh.close()
 
 
 
