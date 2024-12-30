@@ -14,12 +14,14 @@ class AGV:
         self._on=[]
         self._to=[]
         self.end=0
+        self.job_wait_time=[]
 
     def ST(self,s,t1,t2):
         start=max(s,self.end+t1)
         return start-t1,start+t2
 
-    def update(self,s,trans1,trans2,J_site,J_m,_on=None):
+    def update(self,s,trans1,trans2,J_site,J_m,_on=None,job_end=0):
+        self.job_wait_time.append([_on,job_end,self.end])
         self.using_time.append([s,s+trans1])
         self.using_time.append([s + trans1, s+trans1 + trans2])
         self._on.append(None)
@@ -27,6 +29,7 @@ class AGV:
         self._to.extend([J_site,J_m])
         self.end=s+trans1+trans2
         self.cur_site=J_m
+        return _on,J_m,s+trans1 + trans2
 
 class Item:
     def __init__(self,idx):
@@ -40,10 +43,18 @@ class Item:
         self.L=0
         self.laston=None
         self.op=0  #对于机器来说是加工物品的个数，对于工件来说是当前工序
+        self.job_wait_time=[]
+        self.meachine_wait_time=[]
 
-    def update(self,s,e,on,t,op):
+    def update(self,s,e,on,t,op,A_T):
+        if len(self.end)==0:
+            self.meachine_wait_time.append([on,A_T,A_T])
+        else:
+            if A_T>self.end[-1]:
+                self.meachine_wait_time.append([on,A_T,self.end[-1]])
         self.start.append(s)
         self.end.append(e)
+        self.job_wait_time.append([on,s,A_T])
         self.op_list.append(op)
         self._on.append(on)
         self.laston=on
@@ -119,14 +130,14 @@ class Scheduling:
                     best_s,best_e,t1,t2 = start,end,trans1,trans2
                     best_agv=agv
                     min_tf=best_e
-            best_agv.update(best_s,t1,t2,self.Jobs[i].laston,Machineidx,self.Jobs[i].idx)
+            J,D,T=best_agv.update(best_s,t1,t2,self.Jobs[i].laston,Machineidx,self.Jobs[i].idx,self.Jobs[i].last_ot)
             # 无AGV
             #s, e, t=max(last_od,last_Md[Machine],),max(last_od,last_Md[Machine])+M_time[Machine],M_time[Machine]
 
             #有AGV
             s, e, t=max(last_Md[Machine],max(last_od,best_e)),max(last_Md[Machine],max(last_od,best_e))+M_time[Machine],M_time[Machine]
-            self.Jobs[i].update(s, e,Machineidx, t,0)
-            self.Machines[Stage][Machine].update(s, e,i, t,self.Jobs[i].op)
+            self.Jobs[i].update(s, e,Machineidx, t,0,T)
+            self.Machines[Stage][Machine].update(s, e,i, t,self.Jobs[i].op,T)
             if e>self.fitness:
                 self.fitness=e
 
@@ -223,9 +234,11 @@ class Scheduling:
                 agv_loc=to
             agvlists.append(agvlist)
             agv_num+=1
-        self.Gantt_html(machinelists,agvlists)
+        wait_times,meachines_block_time,wait_rate,block_rate,agvs_block_time,agv_block_rates=self.get_block_and_wait()
+        self.Gantt_html(machinelists,agvlists,wait_rate,block_rate,agv_block_rates)
+        print(wait_times,meachines_block_time,wait_rate,block_rate,agvs_block_time,agv_block_rates)
         return machinelists,agvlists
-    def Gantt_html(self,machinelists,agvlists):
+    def Gantt_html(self,machinelists,agvlists,wait_rate,block_rate,agv_block_rates):
 
         import re
         # 读取原始HTML文件
@@ -243,6 +256,12 @@ class Scheduling:
 
         new_content = re.sub(r'(var agv_ganttData =\s*).*?(\];)', r'\1' + str(agvlists)[0:-1] + r'\2', new_content, flags=re.DOTALL)
 
+        new_content = re.sub(r'(var wait_rate =\s*).*?(\];)', r'\1' + str(wait_rate)[0:-1] + r'\2', new_content, flags=re.DOTALL)
+
+        new_content = re.sub(r'(var block_rate =\s*).*?(\];)', r'\1' + str(block_rate)[0:-1] + r'\2', new_content, flags=re.DOTALL)
+
+        new_content = re.sub(r'(var agv_block_rate =\s*).*?(\];)', r'\1' + str(agv_block_rates)[0:-1] + r'\2', new_content, flags=re.DOTALL)
+
 
 
         # 将修改后的内容写回原HTML文件
@@ -250,6 +269,106 @@ class Scheduling:
         with open('gantt.html', 'w', encoding='utf-8') as file:
 
             file.write(new_content)
+
+    def merge_intervals(self,intervals):
+        # 首先，按照区间的起始点对区间进行排序
+        intervals.sort(key=lambda x: x[0])
+        # 初始化合并后的区间列表
+        merged = []
+        # 遍历排序后的区间列表
+        for interval in intervals:
+            # 如果合并后的区间列表为空，或者当前区间与合并后的最后一个区间不重叠
+            if not merged or merged[-1][1] < interval[0]:
+                # 将当前区间添加到合并后的区间列表中
+                merged.append(interval)
+            else:
+                # 否则，合并当前区间与合并后的最后一个区间
+                merged[-1][1] = max(merged[-1][1], interval[1])
+        return merged
+
+
+    def get_block_and_wait(self):
+        wait_times=[]
+        wait_time=0
+        for i in range(len(self.M)):
+            for j in range(self.M[i]):
+                wait_time=0
+                for T in self.Machines[i][j].meachine_wait_time:
+                    wait_time+=T[1]-T[2]
+                wait_times.append(wait_time)
+
+
+        block_times=[[] for _ in range(sum(Machine))]
+        for job in self.Jobs:
+            for bt in job.job_wait_time:
+                block_time=[]
+                block_time.append(bt[2])
+                block_time.append(bt[1])
+                block_times[int(bt[0])-1].append(block_time)
+
+        meachines_block_time=[]
+        for bl in block_times:
+            if len(bl)!=0:
+                meachine_block_time=0
+                bl_merge=self.merge_intervals(bl)
+                for x in bl_merge:
+                    meachine_block_time+=(x[1]-x[0])
+                meachines_block_time.append(meachine_block_time)
+            else:
+                meachines_block_time.append(0)
+
+
+
+
+
+        agv_block_times=[[] for _ in range(agv_num)]
+        index=0
+        for agv in self.Agvs:
+            for bt in agv.job_wait_time:
+                agv_block_time=[]
+                if bt[1]<bt[2]:
+                    agv_block_time.append(bt[1])
+                    agv_block_time.append(bt[2])
+                    agv_block_times[index].append(agv_block_time)
+            index+=1
+
+        agvs_block_time=[]
+        for bl in agv_block_times:
+            if len(bl)!=0:
+                agv_block_time=0
+                bl_merge=self.merge_intervals(bl)
+                for x in bl_merge:
+                    agv_block_time+=(x[1]-x[0])
+                agvs_block_time.append(agv_block_time)
+            else:
+                agvs_block_time.append(0)
+
+
+        wait_rates=[]
+        block_rates=[]
+
+        index=0
+        for i in range(len(self.M)):
+            for j in range(self.M[i]):
+                end=self.Machines[i][j].end[-1]
+                start=self.Machines[i][j].start[0]
+                wait_rates.append(wait_times[index]/(end-start))
+                block_rates.append(meachines_block_time[index]/(end-start))
+                index+=1
+
+        agv_block_rates=[]
+        index=0
+        for agv in self.Agvs:
+            start=agv.using_time[0][0]
+            end=agv.using_time[-1][-1]
+            agv_block_rates.append(agvs_block_time[index]/(end-start))
+            index+=1
+
+
+        return wait_times,meachines_block_time,wait_rates,block_rates,agvs_block_time,agv_block_rates
+
+
+
 
     def Agv_Gantt(self):
         #fig = plt.figure()
