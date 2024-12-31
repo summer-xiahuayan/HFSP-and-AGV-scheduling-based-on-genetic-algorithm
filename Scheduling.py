@@ -218,6 +218,8 @@ class Scheduling:
                 Start_time=use_time[0]
                 End_time=use_time[1]
                 to=agv._to[to_num]
+                if to==agv_loc:
+                    continue
                 on=agv._on[to_num]
                 to_num+=1
                 #item_list.append(agv.idx)
